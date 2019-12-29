@@ -27,8 +27,10 @@ Please see examples
 
 You must use the server IP and the server Query port not the Minecraft port.
 Make sure you have the following settings set in your Minecarft server.properties file:
+```cpp
 enable-query=true
 query.port=25565
+```
 
 ## Installing
 
