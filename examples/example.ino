@@ -14,8 +14,8 @@ byte mac[] = {
   0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
 };
 
-IPAddress server(1, 2, 3, 4);
-uint16_t port = 25565;
+IPAddress server(1, 2, 3, 4); //CHAMGE ME
+uint16_t port = 25565;        //CHAMGE ME
 EthernetClient ethClient;
 ArduinoMinecraftMonitor mc(server, port);
 
