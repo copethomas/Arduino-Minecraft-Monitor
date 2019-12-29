@@ -39,7 +39,7 @@ class ArduinoMinecraftMonitor {
     EthernetUDP udpPacket;
     IPAddress minecraftServerIP; //Address of Minecraft Server
     uint16_t minecraftQueryPort;
-    const long timeout = 5000;
+    const unsigned long timeout = 5000;
 	unsigned long previousMillis = 0;
 	bool errorState = false;
     //Minecraft Data
