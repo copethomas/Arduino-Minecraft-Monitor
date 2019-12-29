@@ -20,3 +20,9 @@ query.port=25565
 ## Installing
 
 Copy to the "libraries" folder located in your sketchbook folder.
+
+
+## TODO
+Remove old code
+remove debugging
+general cleanup

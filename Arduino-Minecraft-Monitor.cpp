@@ -1,78 +1,49 @@
 #include "Arduino-Minecraft-Monitor.h"
 
-ArduinoMinecraftMonitor::ArduinoMinecraftMonitor(IPAddress serverIP, unsigned int queryPort) {
-  minecraftIP = serverIP;
-  minecraftPort = queryPort;
-  udpPacket.begin(queryPort);
-}
-
-void ArduinoMinecraftMonitor::debugEnabled(bool setdebug) {
-  debugenabled = setdebug;
-  if (setdebug) {
-    debug("ArduinoMinecraftMonitor - Debug");
-  }
+ArduinoMinecraftMonitor::ArduinoMinecraftMonitor(IPAddress ip, uint16_t port) {
+  this->minecraftServerIP = ip;
+  this->minecraftQueryPort = port;
 }
 
 void ArduinoMinecraftMonitor::resetTimeout() {
-  previousMillis = millis();
-  errorState = false;
+  this->previousMillis = millis();
+  this->errorState = false;
 }
 
 bool ArduinoMinecraftMonitor::waitTimeout() {
   unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= timeout) {
-    previousMillis = millis();
-    debug("Error: Connection Timeout");
-    errorState = true;
+  if (currentMillis - this->previousMillis >= this->timeout) {
+    this->previousMillis = millis();
+    //Error: Connection Timeout
+    this->errorState = true;
     return false;
   } else {
-    errorState = false;
+    this->errorState = false;
     return true;
   }
 }
 
-void ArduinoMinecraftMonitor::debug(String text) {
-  if (debugenabled) {
-    Serial.print("[Debug] ");
-    Serial.println(text);
-  }
-}
-
-void ArduinoMinecraftMonitor::dumpPacket(char* packet, int packetSize) {
-  if (debugenabled) {
-    Serial.print("[Debug] Packet Dump: ");
-    for (int i = 0; i < packetSize; i++) {
-      Serial.print(packet[i], HEX);
-      Serial.print(" ");
-    }
-    Serial.println("");
-  }
-}
-
-ArduinoMinecraftMonitor& ArduinoMinecraftMonitor::setClient(Client& client){
-    this->_client = &client;
-    return *this;
-}
 
 bool ArduinoMinecraftMonitor::getStats() {
-  debug("Getting Minecraft Status...");
+  //Getting Minecraft Status...
   String token = runHandshake();
   if (errorState) {
-    debug("Error in Handshake - return false");
+    //Error in Handshake - return false
     return false;
   }
   getServerStats(token);
   if (errorState) {
-    debug("Error in Getting Stats - return false");
+    //Error in Getting Stats - return false
     return false;
   }
-  debug("Finished Getting Status.");
+  //Finished Getting Status
   return true;
 }
 
 String ArduinoMinecraftMonitor::runHandshake() {
-  debug("Executing Minecraft Handshake...");
-  debug("Sending Handshake Packet - 0xFE, 0xFD, 0x09, 0x04, 0x05, 0x06, 0x07");
+  //Executing Minecraft Handshake...
+  //Sending Handshake Packet - 0xFE, 0xFD, 0x09, 0x04, 0x05, 0x06, 0x07
+  udpPacket.begin(queryPort);
   udpPacket.beginPacket(minecraftIP, minecraftPort);
   char handshare[] = {0xFE, 0xFD, 0x09, 0x04, 0x05, 0x06, 0x07 };
   udpPacket.write(handshare, 7);
@@ -80,17 +51,16 @@ String ArduinoMinecraftMonitor::runHandshake() {
   char* receiveData;
   String returnData;
   int packetSize = 0;
-  debug("Packet Sent, Waiting for reply...");
+  //Packet Sent, Waiting for reply...
   resetTimeout();
   while (waitTimeout()) {
     packetSize = udpPacket.parsePacket();
     if (packetSize) {
-      debug("Server Replied!");
+      //Server Replied
       receiveData = new char[packetSize];
       udpPacket.read(receiveData, packetSize);
       if (receiveData[0] != 0x09) {
-        dumpPacket(receiveData, packetSize);
-        debug("Handshake - Packet Error");
+        //Handshake - Packet Error
         delete receiveData;
         errorState = true;
         return "";
@@ -106,19 +76,18 @@ String ArduinoMinecraftMonitor::runHandshake() {
     }
   }
   if (errorState) {
-    debug("Handshake - Timeout Error");
+    //Handshake - Timeout Error
     return "";
   }
-  dumpPacket(receiveData, packetSize);
   delete receiveData;
   return returnData;
 }
 
 void ArduinoMinecraftMonitor::getServerStats(String token) {
-  debug("Retrieving Server Status...");
+  //Retrieving Server Status...
   udpPacket.beginPacket(minecraftIP, minecraftPort);
   char handshare[] = {0xFE, 0xFD, 0x00, 0x04, 0x05, 0x06, 0x07 };
-  debug("Sending Handshake Packet - 0xFE, 0xFD, 0x09, 0x04, 0x05, 0x06, 0x07");
+  //Sending Handshake Packet - 0xFE, 0xFD, 0x09, 0x04, 0x05, 0x06, 0x07
   udpPacket.write(handshare, 7);
   const int32_t number = strtol(token.c_str(), NULL, 10);
   unsigned char bytes[4];
@@ -126,25 +95,24 @@ void ArduinoMinecraftMonitor::getServerStats(String token) {
   bytes[1] = (number >> 16) & 0xFF;
   bytes[2] = (number >> 8) & 0xFF;
   bytes[3] = number & 0xFF;
-  debug("Plus Token " + token);
+  //Plus Token
   udpPacket.write(bytes, 4);
   char padding[] = { 0x00, 0x00, 0x00, 0x00};
-  debug("Plus Padding - 0x00, 0x00, 0x00, 0x00");
+  //Plus Padding - 0x00, 0x00, 0x00, 0x00
   udpPacket.write(padding, 4);
   udpPacket.endPacket();
-  debug("Packet Sent, Waiting for reply...");
+  //Packet Sent, Waiting for reply...
   char* receiveData;
   int packetSize = 0;
   resetTimeout();
   while (waitTimeout()) {
     packetSize = udpPacket.parsePacket();
     if (packetSize) {
-      debug("Server Replied!");
+      //Server Replied!
       receiveData = new char[packetSize];
       udpPacket.read(receiveData, packetSize);
       if (receiveData[0] != 0x00) {
-        debug("Handshake - Packet Error");
-        dumpPacket(receiveData, packetSize);
+        //Handshake - Packet Error
         delete receiveData;
         errorState = true;
         return;
@@ -153,7 +121,7 @@ void ArduinoMinecraftMonitor::getServerStats(String token) {
     }
   }
   if (errorState) {
-    debug("GetStats - Timeout Error");
+    //GetStats - Timeout Error
     return;
   }
   dumpPacket(receiveData, packetSize);
@@ -171,7 +139,7 @@ int ArduinoMinecraftMonitor::readUntilNull(String* data, char* receiveData, int 
 }
 
 void ArduinoMinecraftMonitor::interpretStatusPacket(char* receiveData, int packetSize) {
-  debug("Interpret Status Packet...");
+  //Interpret Status Packet...
   int i = 0;
   i = readUntilNull(&motd, receiveData, i, 25);
   i = readUntilNull(&gametype, receiveData, i, 10);

@@ -9,11 +9,9 @@
 class ArduinoMinecraftMonitor {
  
   public:
-    ArduinoMinecraftMonitor(Client& client);
+    ArduinoMinecraftMonitor(IPAddress ip, uint16_t port);
     bool getStats();
     void debugEnabled(bool setdebug);
-	
-   ArduinoMinecraftMonitor& setServer(IPAddress ip, uint16_t port);
 
     //Minecraft Data
     String getMOTD();
@@ -42,18 +40,11 @@ class ArduinoMinecraftMonitor {
     //Internal Varibles
     bool debugenabled = false;
     EthernetUDP udpPacket;
-    IPAddress minecraftIP; //Address of Minecraft Server
-    unsigned int minecraftPort;
-    unsigned int localPort;
-	   IPAddress ip;
-   const char* domain;
-   uint16_t port;
-   Stream* stream;
-   int _state;
-   const long timeout = 5000;
+    IPAddress minecraftServerIP; //Address of Minecraft Server
+    uint16_t minecraftQueryPort;
+    const long timeout = 5000;
 	unsigned long previousMillis = 0;
 	bool errorState = false;
-	Client* _client;
     //Minecraft Data
     String motd = "<unknown>";
     String gametype = "<unknown>";
