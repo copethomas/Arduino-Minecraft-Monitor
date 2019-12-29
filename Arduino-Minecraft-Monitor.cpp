@@ -23,7 +23,6 @@ bool ArduinoMinecraftMonitor::waitTimeout() {
   }
 }
 
-
 bool ArduinoMinecraftMonitor::getStats() {
   //Getting Minecraft Status...
   String token = runHandshake();

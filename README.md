@@ -6,6 +6,19 @@ Designed to work with the Arduino Ethernet Shield
 
 ## Features
 
+Data Returned: 
+* MOTD
+* Game Type
+* Game ID
+* Minecraft Version
+* Minecraft Plugins
+* Current Map
+* Online Players Count
+* Max Player Count
+* Server Port
+* Server IP
+* Online Player Names
+
 ## Tutorial
 
 Please see examples
@@ -20,9 +33,3 @@ query.port=25565
 ## Installing
 
 Copy to the "libraries" folder located in your sketchbook folder.
-
-
-## TODO
-Remove old code
-remove debugging
-general cleanup
