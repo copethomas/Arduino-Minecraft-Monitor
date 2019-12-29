@@ -43,8 +43,8 @@ bool ArduinoMinecraftMonitor::getStats() {
 String ArduinoMinecraftMonitor::runHandshake() {
   //Executing Minecraft Handshake...
   //Sending Handshake Packet - 0xFE, 0xFD, 0x09, 0x04, 0x05, 0x06, 0x07
-  udpPacket.begin(queryPort);
-  udpPacket.beginPacket(minecraftIP, minecraftPort);
+  udpPacket.begin(minecraftQueryPort);
+  udpPacket.beginPacket(minecraftServerIP, minecraftQueryPort);
   char handshare[] = {0xFE, 0xFD, 0x09, 0x04, 0x05, 0x06, 0x07 };
   udpPacket.write(handshare, 7);
   udpPacket.endPacket();
@@ -85,7 +85,7 @@ String ArduinoMinecraftMonitor::runHandshake() {
 
 void ArduinoMinecraftMonitor::getServerStats(String token) {
   //Retrieving Server Status...
-  udpPacket.beginPacket(minecraftIP, minecraftPort);
+  udpPacket.beginPacket(minecraftServerIP, minecraftQueryPort);
   char handshare[] = {0xFE, 0xFD, 0x00, 0x04, 0x05, 0x06, 0x07 };
   //Sending Handshake Packet - 0xFE, 0xFD, 0x09, 0x04, 0x05, 0x06, 0x07
   udpPacket.write(handshare, 7);
@@ -124,7 +124,6 @@ void ArduinoMinecraftMonitor::getServerStats(String token) {
     //GetStats - Timeout Error
     return;
   }
-  dumpPacket(receiveData, packetSize);
   interpretStatusPacket(receiveData, packetSize);
 }
 

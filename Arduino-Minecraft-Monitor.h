@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "IPAddress.h"
+#include <EthernetUdp.h>
 #include "Client.h"
 #include "Stream.h"
 
@@ -11,7 +12,6 @@ class ArduinoMinecraftMonitor {
   public:
     ArduinoMinecraftMonitor(IPAddress ip, uint16_t port);
     bool getStats();
-    void debugEnabled(bool setdebug);
 
     //Minecraft Data
     String getMOTD();
@@ -30,15 +30,12 @@ class ArduinoMinecraftMonitor {
     //Internal Functions
     bool waitTimeout();
     void resetTimeout();
-    void debug(String text);
     String runHandshake();
     void getServerStats(String token);
     void receiveUDP(byte type);
     void interpretStatusPacket(char* receiveData, int packetSize);
     int readUntilNull(String* data, char* receiveData, int counter, int increment);
-    void dumpPacket(char* packet, int packetSize);
     //Internal Varibles
-    bool debugenabled = false;
     EthernetUDP udpPacket;
     IPAddress minecraftServerIP; //Address of Minecraft Server
     uint16_t minecraftQueryPort;
